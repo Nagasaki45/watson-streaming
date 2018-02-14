@@ -9,61 +9,30 @@ import contextlib
 import json
 import threading
 
-import pyaudio
 import requests
+import sounddevice
 import websocket
 
 AUTH_API = 'https://stream.watsonplatform.net/authorization/api/'
 STT_API = 'https://stream.watsonplatform.net/speech-to-text/api/'
 WS_URL = 'wss://stream.watsonplatform.net/speech-to-text/api/v1/recognize'
 
-CHUNK = 2048
-FORMAT = pyaudio.paInt16
-CHANNELS = 1
-RATE = 44100
-
-
-class Color:
-    """
-    ANSI colors copied from https://stackoverflow.com/a/287944/1224456.
-    """
-    GREEN = '\033[92m'
-    NO_COLOR = '\033[0m'
-
-
-# These context managers simplify closing pyaudio
-
-@contextlib.contextmanager
-def pyaudio_terminator(pyaudio):
-    try:
-        yield pyaudio
-    finally:
-        pyaudio.terminate
-
-
-@contextlib.contextmanager
-def stream_closer(stream):
-    try:
-        yield stream
-    finally:
-        stream.stop_stream()
-        stream.close()
+AUDIO_OPTS = {
+    'dtype': 'int16',
+    'samplerate': 44100,
+    'channels': 1,
+}
+BUFFER_SIZE = 2048
 
 
 def audio_gen():
     """
     Generate audio chunks.
     """
-    stream_options = {
-        'input': True,  # this is not an output
-        'format': FORMAT,
-        'channels': CHANNELS,
-        'rate': RATE,
-    }
-    with pyaudio_terminator(pyaudio.PyAudio()) as p:
-        with stream_closer(p.open(**stream_options)) as stream:
-            while True:
-                yield stream.read(CHUNK)
+    with sounddevice.RawInputStream(**AUDIO_OPTS) as stream:
+        while True:
+            chunk, _ = stream.read(BUFFER_SIZE)
+            yield chunk[:]  # To get the bytes out of the CFFI buffer
 
 
 def send_audio(ws):
@@ -90,7 +59,7 @@ def start_communicate(ws, settings):
 
     settings.update({
         'action': 'start',
-        'content-type': f'audio/l16;rate={RATE}',
+        'content-type': 'audio/l16;rate={samplerate}'.format(**AUDIO_OPTS),
     })
 
     # Send the initial control message which sets expectations for the

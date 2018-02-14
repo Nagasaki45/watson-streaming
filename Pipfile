@@ -7,9 +7,9 @@ name = "pypi"
 
 [packages]
 
-PyAudio = "*"
 requests = "*"
 websocket-client = "*"
+sounddevice = "*"
 
 
 [dev-packages]
