@@ -145,14 +145,8 @@ def demo_callback(msg):
     """
     msg = json.loads(msg)
     if 'results' in msg:
-        final = msg['results'][0]['final']
         transcript = msg['results'][0]['alternatives'][0]['transcript']
-        text = [
-            Color.GREEN if final else Color.NO_COLOR,
-            transcript,
-            Color.NO_COLOR,
-        ]
-        print(''.join(text))
+        print(transcript)
 
 
 
