@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 """
-Speech to text transcription in real-time using IBM Watson, pyaudio,
-and websocket-client.
+Speech to text transcription in real-time using IBM Watson.
 """
 
 import contextlib
