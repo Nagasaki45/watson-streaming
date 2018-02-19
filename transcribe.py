@@ -71,8 +71,8 @@ def start_communicate(ws, settings):
     t.start()
 
 
-def parse_credentials():
-    with open('credentials.json') as f:
+def parse_credentials(credentials_file):
+    with open(credentials_file) as f:
         return json.load(f)['speech_to_text'][0]['credentials']
 
 
@@ -86,14 +86,15 @@ def obtain_token(credentials):
     return response.content.decode()
 
 
-def transcribe(callback, settings):
+def transcribe(callback, settings, credentials_file):
     """
     Main API for Watson STT transcription.
 
-    callback: a function to call when Watson sends us messages.
-    settings: a dictionary of input and output features.
+    callback:         function to call when Watson sends us messages.
+    settings:         dictionary of input and output features.
+    credentials_file: path to 'credentials.json'.
     """
-    credentials = parse_credentials()
+    credentials = parse_credentials(credentials_file)
     token = obtain_token(credentials)
 
     ws = websocket.WebSocketApp(
@@ -118,13 +119,12 @@ def demo_callback(msg):
         print(transcript)
 
 
-
 def main():
     settings = {
         'inactivity_timeout': -1,  # Don't kill me after 30 seconds
         'interim_results': True,
     }
-    transcribe(demo_callback, settings)
+    transcribe(demo_callback, settings, 'credentials.json')
 
 
 if __name__ == '__main__':
