@@ -7,6 +7,7 @@ and websocket-client.
 
 import contextlib
 import json
+import logging
 import threading
 
 import requests
@@ -23,6 +24,8 @@ AUDIO_OPTS = {
     'channels': 1,
 }
 BUFFER_SIZE = 2048
+
+logger = logging.getLogger(__name__)
 
 
 def audio_gen():
@@ -44,18 +47,18 @@ def send_audio(ws):
 
 
 def on_error(ws, error):
-    print('ERROR', error)
+    logger.warning(error)
 
 
 def on_close(ws):
-    print('CLOSE')
+    logger.warning('WebSockets connection closed')
 
 
 def start_communicate(ws, settings):
     """
     Send the initial control message and start sending audio chunks.
     """
-    print('OPEN')
+    logger.info('WebSockets connection opened')
 
     settings.update({
         'action': 'start',
