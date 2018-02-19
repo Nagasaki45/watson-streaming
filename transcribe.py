@@ -109,6 +109,16 @@ def transcribe(callback, settings, credentials_file):
     ws.run_forever()
 
 
+###############################################################################
+#
+# Demo Time!
+#
+# The `demo_callback` and the `main` functions are a good example of how
+# to use the `transcribe` function.
+#
+###############################################################################
+
+
 def demo_callback(msg):
     """
     Nicely print received transcriptions.
