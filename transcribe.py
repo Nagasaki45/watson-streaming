@@ -86,7 +86,7 @@ def obtain_token(credentials):
     auth = (credentials['username'], credentials['password'])
     url = AUTH_API + '/v1/token'
     response = requests.get(url, params=params, auth=auth)
-    return response.content.decode()
+    return response.text
 
 
 def transcribe(callback, settings, credentials_file):
