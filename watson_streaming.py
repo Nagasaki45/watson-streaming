@@ -7,6 +7,7 @@ Speech to text transcription in real-time using IBM Watson.
 import contextlib
 import json
 import logging
+import ssl
 import threading
 
 import requests
@@ -108,7 +109,7 @@ def transcribe(callback, settings, credentials_file):
         on_close=on_close,
     )
 
-    ws.run_forever()
+    ws.run_forever(sslopt={'cert_reqs': ssl.CERT_NONE})
 
 
 ###############################################################################
