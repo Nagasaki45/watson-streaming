@@ -1,1 +1,12 @@
+# IBM Watson credentials
 credentials.json
+
+# general things to ignore
+build/
+dist/
+*.egg-info/
+*.egg
+*.py[cod]
+__pycache__/
+*.so
+*~
