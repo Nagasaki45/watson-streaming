@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Speech to text transcription in real-time using IBM Watson.
 """
