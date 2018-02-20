@@ -1,4 +1,4 @@
-watson_streaming
+watson-streaming
 ################
 
 Speech to text transcription from your microphone in real-time using IBM Watson.
@@ -7,8 +7,8 @@ Installing
 ----------
 
 1. This project depends on PortAudio_ - a free, cross-platform, open-source, audio I/O library. Install it first.
-2. Run `pip install watson_streaming`.
-3. Download the `credentials.json` file from IBM Watson and put it in your current working directory.
+2. Download the ``credentials.json`` file from IBM Watson and put it in your current working directory.
+3. ``pip install watson-streaming`` and you are ready to go!
 
 .. _PortAudio: http://www.portaudio.com/
 
@@ -17,7 +17,7 @@ Using from the command line
 
 .. code-block:: bash
 
-    watson_streaming  # And start talking
+    watson-streaming  # And start talking
 
 
 Using as a library
@@ -44,5 +44,5 @@ Using as a library
     }
 
 
-    # You can't ask for as simpler API than this!
+    # You can't ask for a simpler API than this!
     transcribe(example_callback, settings, 'credentials.json')
