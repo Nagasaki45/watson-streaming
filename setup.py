@@ -11,11 +11,11 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='watson_streaming',
+    name='watson-streaming',
     version='0.0.1',
     description='Speech to text transcription in real-time using IBM Watson',
     long_description=long_description,
-    url='https://github.com/Nagasaki45/watson_streaming',
+    url='https://github.com/Nagasaki45/watson-streaming',
     author='Tom Gurion',
     author_email='nagasaki45@gmail.com',
 
