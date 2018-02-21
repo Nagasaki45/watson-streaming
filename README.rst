@@ -7,10 +7,16 @@ Installing
 ----------
 
 1. This project depends on PortAudio_ - a free, cross-platform, open-source, audio I/O library. Install it first.
-2. Download the ``credentials.json`` file from IBM Watson and put it in your current working directory.
+2. Prepare your credentials:
+
+   - Visit the `IBM Watson projects`_ page.
+   - Choose your project.
+   - Copy the credentials to ``credentials.json`` in the current working directory.
+
 3. ``pip install watson-streaming`` and you are ready to go!
 
 .. _PortAudio: http://www.portaudio.com/
+.. _`IBM Watson projects`: https://console.bluemix.net/developer/watson/projects
 
 Using from the command line
 ---------------------------
