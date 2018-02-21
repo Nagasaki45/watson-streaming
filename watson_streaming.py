@@ -68,7 +68,8 @@ def start_communicate(ws, settings):
     ws.send(json.dumps(settings).encode('utf8'))
     # Spin off a dedicated thread where we are going to read and
     # stream out audio.
-    t = threading.Thread(target=send_audio, args=(ws, ), daemon=True)
+    t = threading.Thread(target=send_audio, args=(ws, ))
+    t.daemon = True  # Not passed to the constructor to support python 2
     t.start()
 
 
