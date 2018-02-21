@@ -11,7 +11,7 @@ Installing
 
    - Visit the `IBM Watson projects`_ page.
    - Choose your project.
-   - Copy the credentials to ``credentials.json`` in the current working directory.
+   - Copy the credentials to ``credentials.json`` somewhere on your computer.
 
 3. ``pip install watson-streaming`` and you are ready to go!
 
@@ -23,7 +23,7 @@ Using from the command line
 
 .. code-block:: bash
 
-    watson-streaming  # And start talking
+    watson-streaming path/to/credentials.json  # And start talking
 
 
 Using as a library

@@ -2,6 +2,7 @@
 Speech to text transcription in real-time using IBM Watson.
 """
 
+import argparse
 import contextlib
 import json
 import logging
@@ -121,6 +122,12 @@ def transcribe(callback, settings, credentials_file):
 ###############################################################################
 
 
+def parse_arguments():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('credentials', help='path to credentials.json')
+    return parser.parse_args()
+
+
 def demo_callback(msg):
     """
     Nicely print received transcriptions.
@@ -132,11 +139,12 @@ def demo_callback(msg):
 
 
 def main():
+    args = parse_arguments()
     settings = {
         'inactivity_timeout': -1,  # Don't kill me after 30 seconds
         'interim_results': True,
     }
-    transcribe(demo_callback, settings, 'credentials.json')
+    transcribe(demo_callback, settings, args.credentials)
 
 
 if __name__ == '__main__':
