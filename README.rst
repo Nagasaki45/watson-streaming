@@ -25,6 +25,8 @@ Using as a library
 
 .. code-block:: python
 
+    import json
+
     from watson_streaming import transcribe
 
 
