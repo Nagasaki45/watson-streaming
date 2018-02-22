@@ -100,11 +100,15 @@ def transcribe(callback, settings, credentials_file):
     credentials = parse_credentials(credentials_file)
     token = obtain_token(credentials)
 
+    def callback_wrapper(ws, msg):
+        data = json.loads(msg)
+        return callback(data)
+
     ws = websocket.WebSocketApp(
         WS_URL,
         header={'X-Watson-Authorization-Token': token},
         on_open=lambda ws: start_communicate(ws, settings),
-        on_message=lambda ws, msg: callback(msg),
+        on_message=callback_wrapper,
         on_error=on_error,
         on_close=on_close,
     )
@@ -128,13 +132,12 @@ def parse_arguments():
     return parser.parse_args()
 
 
-def demo_callback(msg):
+def demo_callback(data):
     """
     Nicely print received transcriptions.
     """
-    msg = json.loads(msg)
-    if 'results' in msg:
-        transcript = msg['results'][0]['alternatives'][0]['transcript']
+    if 'results' in data:
+        transcript = data['results'][0]['alternatives'][0]['transcript']
         print(transcript)
 
 

@@ -31,16 +31,13 @@ Using as a library
 
 .. code-block:: python
 
-    import json
-
     from watson_streaming import transcribe
 
 
-    # Write whatever you want in your callback function
-    def example_callback(msg):
-        msg = json.loads(msg)
-        if 'results' in msg:
-            transcript = msg['results'][0]['alternatives'][0]['transcript']
+    # Write whatever you want in your callback function (expecting a dict)
+    def example_callback(data):
+        if 'results' in data:
+            transcript = data['results'][0]['alternatives'][0]['transcript']
             print(transcript)
 
 
