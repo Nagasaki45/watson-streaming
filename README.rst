@@ -7,7 +7,7 @@ Installing
 ----------
 
 1. This project depends on PortAudio_ - a free, cross-platform, open-source, audio I/O library. Install it first.
-2. Prepare your credentials:
+2. Prepare your credentials from IBM Watson (free trials are available):
 
    - Visit the `IBM Watson projects`_ page.
    - Choose your project.
