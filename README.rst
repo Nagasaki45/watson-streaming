@@ -56,4 +56,4 @@ Using as a library
 Custom audio source
 -------------------
 
-By default, the audio from the computer sound card is sent to IBM Watson for transcription. If you want to send audio from another source (like a file, socket, etc.) use the `audio_gen` argument of the `transcribe` function. This should be a generator that yields audio samples, currently in 44100 Hz sample rate. See `examples/audio_from_file.py`.
+By default, the audio from the computer sound card is sent to IBM Watson for transcription. If you want to send audio from another source (like a file, socket, etc.) use the ``audio_gen`` argument of the ``transcribe`` function. This should be a generator that yields audio samples, currently in 44100 Hz sample rate. See ``examples/audio_from_file.py``.
