@@ -37,7 +37,7 @@ def audio_gen():
             yield chunk[:]  # To get the bytes out of the CFFI buffer
 
 
-def send_audio(ws):
+def send_audio(ws, audio_gen):
     """
     Get chunks of audio and send them to the websocket.
     """
@@ -53,7 +53,7 @@ def on_close(ws):
     logger.warning('WebSockets connection closed')
 
 
-def start_communicate(ws, settings):
+def start_communicate(ws, settings, audio_gen):
     """
     Send the initial control message and start sending audio chunks.
     """
@@ -69,7 +69,7 @@ def start_communicate(ws, settings):
     ws.send(json.dumps(settings).encode('utf8'))
     # Spin off a dedicated thread where we are going to read and
     # stream out audio.
-    t = threading.Thread(target=send_audio, args=(ws, ))
+    t = threading.Thread(target=send_audio, args=(ws, audio_gen))
     t.daemon = True  # Not passed to the constructor to support python 2
     t.start()
 
@@ -89,13 +89,15 @@ def obtain_token(credentials):
     return response.text
 
 
-def transcribe(callback, settings, credentials_file):
+def transcribe(callback, settings, credentials_file, audio_gen=audio_gen):
     """
     Main API for Watson STT transcription.
 
     callback:         function to call when Watson sends us messages.
     settings:         dictionary of input and output features.
     credentials_file: path to 'credentials.json'.
+    audio_gen:        a generator that yields audio samples. Use the computer
+                      sound card input (microphone) by default.
     """
     credentials = parse_credentials(credentials_file)
     token = obtain_token(credentials)
@@ -107,7 +109,7 @@ def transcribe(callback, settings, credentials_file):
     ws = websocket.WebSocketApp(
         WS_URL,
         header={'X-Watson-Authorization-Token': token},
-        on_open=lambda ws: start_communicate(ws, settings),
+        on_open=lambda ws: start_communicate(ws, settings, audio_gen),
         on_message=callback_wrapper,
         on_error=on_error,
         on_close=on_close,
