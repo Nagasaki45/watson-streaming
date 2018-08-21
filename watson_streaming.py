@@ -3,15 +3,16 @@ Speech to text transcription in real-time using IBM Watson.
 """
 
 import argparse
-import contextlib
 import json
-import logging
 import ssl
+import time
 import threading
 
 import requests
 import sounddevice
 import websocket
+
+import pipeline
 
 AUTH_API = 'https://stream.watsonplatform.net/authorization/api/'
 STT_API = 'https://stream.watsonplatform.net/speech-to-text/api/'
@@ -24,54 +25,20 @@ AUDIO_OPTS = {
 }
 BUFFER_SIZE = 2048
 
-logger = logging.getLogger(__name__)
 
+class AudioGen(pipeline.Node):
 
-def audio_gen():
-    """
-    Generate audio chunks.
-    """
-    with sounddevice.RawInputStream(**AUDIO_OPTS) as stream:
-        while True:
-            chunk, _ = stream.read(BUFFER_SIZE)
-            yield chunk[:]  # To get the bytes out of the CFFI buffer
+    def enter(self):
+        self.stream = sounddevice.RawInputStream(**AUDIO_OPTS)
+        self.stream.start()
 
+    def exit(self):
+        self.stream.stop()
+        self.stream.close()
 
-def send_audio(ws, audio_gen):
-    """
-    Get chunks of audio and send them to the websocket.
-    """
-    for chunk in audio_gen():
-        ws.send(chunk, websocket.ABNF.OPCODE_BINARY)
-
-
-def on_error(ws, error):
-    logger.warning(error)
-
-
-def on_close(ws):
-    logger.warning('WebSockets connection closed')
-
-
-def start_communicate(ws, settings, audio_gen):
-    """
-    Send the initial control message and start sending audio chunks.
-    """
-    logger.info('WebSockets connection opened')
-
-    settings.update({
-        'action': 'start',
-        'content-type': 'audio/l16;rate={samplerate}'.format(**AUDIO_OPTS),
-    })
-
-    # Send the initial control message which sets expectations for the
-    # binary stream that follows:
-    ws.send(json.dumps(settings).encode('utf8'))
-    # Spin off a dedicated thread where we are going to read and
-    # stream out audio.
-    t = threading.Thread(target=send_audio, args=(ws, audio_gen))
-    t.daemon = True  # Not passed to the constructor to support python 2
-    t.start()
+    def generate(self):
+        chunk, _ = self.stream.read(BUFFER_SIZE)
+        self.put(chunk[:])  # To get the bytes out of the CFFI buffer
 
 
 def parse_credentials(credentials_file):
@@ -89,33 +56,47 @@ def obtain_token(credentials):
     return response.text
 
 
-def transcribe(callback, settings, credentials_file, audio_gen=audio_gen):
-    """
-    Main API for Watson STT transcription.
+class Transcriber(pipeline.Node):
 
-    callback:         function to call when Watson sends us messages.
-    settings:         dictionary of input and output features.
-    credentials_file: path to 'credentials.json'.
-    audio_gen:        a generator that yields audio samples. Use the computer
-                      sound card input (microphone) by default.
-    """
-    credentials = parse_credentials(credentials_file)
-    token = obtain_token(credentials)
+    def __init__(self, settings, credentials_file):
+        super(Transcriber, self).__init__()
+        settings.update({
+            'action': 'start',
+            'content-type': 'audio/l16;rate={samplerate}'.format(**AUDIO_OPTS),
+        })
+        self.settings = settings
+        self.token = obtain_token(parse_credentials(credentials_file))
 
-    def callback_wrapper(ws, msg):
-        data = json.loads(msg)
-        return callback(data)
+    def enter(self):
 
-    ws = websocket.WebSocketApp(
-        WS_URL,
-        header={'X-Watson-Authorization-Token': token},
-        on_open=lambda ws: start_communicate(ws, settings, audio_gen),
-        on_message=callback_wrapper,
-        on_error=on_error,
-        on_close=on_close,
-    )
+        def on_message(_, msg):
+            data = json.loads(msg)
+            self.put(data)
 
-    ws.run_forever(sslopt={'cert_reqs': ssl.CERT_NONE})
+        def on_open(ws):
+            # Send the settings to sets expectations for the stream
+            ws.send(json.dumps(self.settings).encode('utf8'))
+            self.ws.is_open = True
+
+        self.ws = websocket.WebSocketApp(
+            WS_URL,
+            header={'X-Watson-Authorization-Token': self.token},
+            on_open=on_open,
+            on_message=on_message,
+        )
+        self.ws.is_open = False
+
+        ws_settings = {'sslopt': {'cert_reqs': ssl.CERT_NONE}}
+        t = threading.Thread(target=self.ws.run_forever, kwargs=ws_settings)
+        t.daemon = True  # Not passed to the constructor to support python 2
+        t.start()
+
+    def exit(self):
+        self.ws.close()
+
+    def consume(self, chunk):
+        if self.ws.is_open:
+            self.ws.send(chunk, websocket.ABNF.OPCODE_BINARY)
 
 
 ###############################################################################
@@ -128,19 +109,16 @@ def transcribe(callback, settings, credentials_file, audio_gen=audio_gen):
 ###############################################################################
 
 
+class Printer(pipeline.Node):
+    def consume(self, item):
+        if 'results' in item:
+            print(item['results'][0]['alternatives'][0]['transcript'])
+
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('credentials', help='path to credentials.json')
     return parser.parse_args()
-
-
-def demo_callback(data):
-    """
-    Nicely print received transcriptions.
-    """
-    if 'results' in data:
-        transcript = data['results'][0]['alternatives'][0]['transcript']
-        print(transcript)
 
 
 def main():
@@ -149,7 +127,21 @@ def main():
         'inactivity_timeout': -1,  # Don't kill me after 30 seconds
         'interim_results': True,
     }
-    transcribe(demo_callback, settings, args.credentials)
+
+    nodes = [
+        AudioGen(),
+        Transcriber(settings, args.credentials),
+        Printer(),
+    ]
+
+    pipeline.connect(nodes)
+    pipeline.start(nodes)
+
+    try:
+        while True:
+            time.sleep(10)
+    except KeyboardInterrupt:
+        pipeline.stop(nodes)
 
 
 if __name__ == '__main__':
