@@ -12,7 +12,7 @@ import requests
 import sounddevice
 import websocket
 
-import pipeline
+import fluteline
 
 AUTH_API = 'https://stream.watsonplatform.net/authorization/api/'
 STT_API = 'https://stream.watsonplatform.net/speech-to-text/api/'
@@ -26,7 +26,7 @@ AUDIO_OPTS = {
 BUFFER_SIZE = 2048
 
 
-class AudioGen(pipeline.Node):
+class AudioGen(fluteline.Node):
 
     def enter(self):
         self.stream = sounddevice.RawInputStream(**AUDIO_OPTS)
@@ -56,7 +56,7 @@ def obtain_token(credentials):
     return response.text
 
 
-class Transcriber(pipeline.Node):
+class Transcriber(fluteline.Node):
 
     def __init__(self, settings, credentials_file):
         super(Transcriber, self).__init__()
@@ -109,7 +109,7 @@ class Transcriber(pipeline.Node):
 ###############################################################################
 
 
-class Printer(pipeline.Node):
+class Printer(fluteline.Node):
     def consume(self, item):
         if 'results' in item:
             print(item['results'][0]['alternatives'][0]['transcript'])
@@ -134,14 +134,14 @@ def main():
         Printer(),
     ]
 
-    pipeline.connect(nodes)
-    pipeline.start(nodes)
+    fluteline.connect(nodes)
+    fluteline.start(nodes)
 
     try:
         while True:
             time.sleep(10)
     except KeyboardInterrupt:
-        pipeline.stop(nodes)
+        fluteline.stop(nodes)
 
 
 if __name__ == '__main__':

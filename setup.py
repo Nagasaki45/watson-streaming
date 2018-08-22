@@ -78,6 +78,7 @@ setup(
         'requests',
         'sounddevice',
         'websocket-client',
+        'fluteline',
     ],
 
     # To provide executable scripts, use entry points in preference to the
