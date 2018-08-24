@@ -12,11 +12,11 @@ AUDIO_PATH = 'examples/audio_file.wav'
 class TestSanity(unittest.TestCase):
 
     def setUp(self):
-        try:
+        if os.path.isfile(CREDENTIALS_PATH):
             credentials = watson_streaming.transcriber._parse_credentials(CREDENTIALS_PATH)
             self.username = credentials['username']
             self.password = credentials['password']
-        except FileNotFoundError:
+        else:
             self.username = os.environ['WATSON_USERNAME']
             self.password = os.environ['WATSON_PASSWORD']
 
