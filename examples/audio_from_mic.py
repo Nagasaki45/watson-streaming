@@ -1,6 +1,5 @@
 '''
-Speech to text transcription, from an audio file, in real-time, using
-IBM Watson.
+Speech to text transcription, from your mike, in real-time, using IBM Watson.
 '''
 
 import argparse
@@ -15,18 +14,18 @@ import watson_streaming.utilities
 def parse_arguments():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('credentials', help='path to credentials.json')
-    parser.add_argument('audio_file', help='path to .wav audio file')
     return parser.parse_args()
 
 
 def main():
     args = parse_arguments()
     settings = {
+        'inactivity_timeout': -1,  # Don't kill me after 30 seconds
         'interim_results': True,
     }
 
     nodes = [
-        watson_streaming.utilities.FileAudioGen(args.audio_file),
+        watson_streaming.utilities.MicAudioGen(),
         watson_streaming.Transcriber(settings, args.credentials),
         watson_streaming.utilities.Printer(),
     ]
@@ -34,8 +33,6 @@ def main():
     fluteline.connect(nodes)
     fluteline.start(nodes)
 
-    # It's impossible to know when Watson finished sending the entire
-    # transcript. So let's wait forever or exit manually.
     try:
         while True:
             time.sleep(10)
