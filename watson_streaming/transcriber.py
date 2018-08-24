@@ -19,27 +19,38 @@ def _parse_credentials(credentials_file):
         return json.load(f)['speech_to_text'][0]['credentials']
 
 
-def _request_token(credentials):
+def _request_token(username, password):
     params = {
         'url': STT_API,
     }
-    auth = (credentials['username'], credentials['password'])
+    auth = (username, password)
     url = AUTH_API + '/v1/token'
     response = requests.get(url, params=params, auth=auth)
+    msg = 'Failed to get a token. Check your credentials'
+    assert response.status_code == 200, msg
     return response.text
 
 
 class Transcriber(fluteline.Consumer):
 
-    def __init__(self, settings, credentials_file):
+    def __init__(self, settings, credentials_file=None,
+                 username=None, password=None):
         super(Transcriber, self).__init__()
+
+        if credentials_file is None:
+            msg = 'Provide either credentials_file or username and password'
+            assert None not in (username, password), msg
+        else:
+            credentials = _parse_credentials(credentials_file)
+            username = credentials['username']
+            password = credentials['password']
+
         settings.update({
             'action': 'start',
             'content-type': 'audio/l16;rate=44100',
         })
         self.settings = settings
-        credentials = _parse_credentials(credentials_file)
-        self.token = _request_token(credentials)
+        self.token = _request_token(username, password)
         self._watson_ready = threading.Event()
 
     def enter(self):
