@@ -87,9 +87,9 @@ setup(
     #
     # For example, the following would provide a command called `sample` which
     # executes the function `main` from this package when invoked:
-    entry_points={
-        'console_scripts': [
-            'watson-streaming=watson_streaming:main',
-        ],
-    },
+    # entry_points={
+    #     'console_scripts': [
+    #         'watson-streaming=watson_streaming:main',
+    #     ],
+    # },
 )
