@@ -18,42 +18,16 @@ Installing
 .. _PortAudio: http://www.portaudio.com/
 .. _`IBM Watson projects`: https://console.bluemix.net/developer/watson/projects
 
-Using from the command line
----------------------------
-
-.. code-block:: bash
-
-    watson-streaming path/to/credentials.json  # And start talking
-
 
 Using as a library
 ------------------
 
-.. code-block:: python
+What you need to know:
 
-    from watson_streaming import transcribe
+- This project relies on `fluteline`_, an easy to use thread based pipelines library.
+- ``watson_streaming.Transcriber`` is a consumer-producer, it receives audio samples and spits out transcriptions.
+- ``watson_streaming.utilities`` include some useful things that you can plug in the pipeline, like audio producers (from file or from microphone).
+- To learn how to use the library see the ``examples`` folder.
+- TODO: Proper documentation is coming soon.
 
-
-    # Write whatever you want in your callback function (expecting a dict)
-    def example_callback(data):
-        if 'results' in data:
-            transcript = data['results'][0]['alternatives'][0]['transcript']
-            print(transcript)
-
-
-    # Provide a dictionary of Watson input and output features.
-    # For example
-    settings = {
-        'inactivity_timeout': -1,  # Don't kill me after 30 seconds
-        'interim_results': True,
-    }
-
-
-    # You can't ask for a simpler API than this!
-    transcribe(example_callback, settings, 'credentials.json')
-
-
-Custom audio source
--------------------
-
-By default, the audio from the computer sound card is sent to IBM Watson for transcription. If you want to send audio from another source (like a file, socket, etc.) use the ``audio_gen`` argument of the ``transcribe`` function. This should be a generator that yields audio samples, currently in 44100 Hz sample rate. See ``examples/audio_from_file.py``.
+.. _fluteline: https://github.com/Nagasaki45/fluteline
