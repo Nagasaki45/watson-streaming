@@ -10,9 +10,6 @@ AUTH_API = 'https://stream.watsonplatform.net/authorization/api/'
 STT_API = 'https://stream.watsonplatform.net/speech-to-text/api/'
 WS_URL = 'wss://stream.watsonplatform.net/speech-to-text/api/v1/recognize'
 
-import logging
-logging.basicConfig()
-
 
 def _parse_credentials(credentials_file):
     with open(credentials_file) as f:
