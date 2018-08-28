@@ -29,9 +29,23 @@ def _request_token(username, password):
 
 
 class Transcriber(fluteline.Consumer):
+    '''
+    A `fluteline`_ consumer-producer.
+
+    Send audio samples to it (1 channel, 44100kHz, 16bit, little-endian)
+    and it will spit out the results from watson.
+    '''
 
     def __init__(self, settings, credentials_file=None,
                  username=None, password=None):
+        '''
+        :param dict settings: IBM Watson settings. Consult the official
+            IBM Watson docs for more information.
+        :param string credentials_file: Path to your IBM Watson credentials.
+            Alternatively, provide your username and password.
+        :param string username: IBM Watson username.
+        :param string password: IBM Watson password.
+        '''
         super(Transcriber, self).__init__()
 
         if credentials_file is None:

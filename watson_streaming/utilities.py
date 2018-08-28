@@ -1,3 +1,8 @@
+'''
+Convenient `fluteline`_ producers and consumers to use with the main
+:class:`watson_streaming.Transcriber`.
+'''
+
 import json
 import wave
 
@@ -13,6 +18,9 @@ BUFFER_SIZE = 2048
 
 
 class MicAudioGen(fluteline.Producer):
+    '''
+    Producer that spits out audio samples from your microphone.
+    '''
 
     def enter(self):
         self.stream = sounddevice.RawInputStream(**AUDIO_OPTS)
@@ -28,8 +36,14 @@ class MicAudioGen(fluteline.Producer):
 
 
 class FileAudioGen(fluteline.Producer):
+    '''
+    Producer that spits out audio samples from a file.
+    '''
 
     def __init__(self, audio_file):
+        '''
+        :param string audio_file: Path to a ``.wav`` file.
+        '''
         super(FileAudioGen, self).__init__()
         self.audio_file = audio_file
 
@@ -48,6 +62,10 @@ class FileAudioGen(fluteline.Producer):
 
 
 class Printer(fluteline.Consumer):
+    '''
+    End-of-chain consumer to print the transcript received from
+    IBM Watson.
+    '''
     def consume(self, item):
         if 'results' in item:
             print(item['results'][0]['alternatives'][0]['transcript'])

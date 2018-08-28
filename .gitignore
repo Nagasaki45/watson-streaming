@@ -5,8 +5,11 @@ credentials.json
 build/
 dist/
 *.egg-info/
-*.egg
+*.eggs
 *.py[cod]
 __pycache__/
 *.so
 *~
+
+# Sphinx documentation
+docs/_build/
