@@ -158,5 +158,5 @@ texinfo_documents = [
 
 # -- Extension configuration -------------------------------------------------
 
-autodoc_mock_imports = ['fluteline']
+autodoc_mock_imports = ['fluteline', 'requests', 'websocket', 'sounddevice']
 autoclass_content = 'both'
