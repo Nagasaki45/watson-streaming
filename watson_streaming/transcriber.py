@@ -82,8 +82,7 @@ class Transcriber(fluteline.Consumer):
             on_message=on_message,
         )
 
-        # ping_timeout is a workaround for websocket-client/websocket-client#466
-        ws_settings = {'sslopt': {'cert_reqs': ssl.CERT_NONE}, 'ping_timeout': 10}
+        ws_settings = {'sslopt': {'cert_reqs': ssl.CERT_NONE}}
         t = threading.Thread(target=self._ws.run_forever, kwargs=ws_settings)
         t.daemon = True  # Not passed to the constructor to support python 2
         t.start()
