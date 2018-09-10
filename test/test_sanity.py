@@ -33,7 +33,7 @@ class TestSanity(unittest.TestCase):
         file_audio_gen.start()
 
         while True:
-            result = transcriber._output.get(timeout=5)
+            result = transcriber.output.get()
             if 'results' in result:
                 transcript = result['results'][0]['alternatives'][0]['transcript']
                 expected = 'several tornadoes'
