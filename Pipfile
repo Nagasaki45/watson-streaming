@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 watson-streaming = {editable = true, path = "."}
 fluteline = "*"
+bumpversion = "*"
 
 [dev-packages]
 
