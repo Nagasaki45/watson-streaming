@@ -1,6 +1,8 @@
 import os.path
 import unittest
 
+import fluteline
+
 import watson_streaming
 import watson_streaming.transcriber
 import watson_streaming.utilities
@@ -26,11 +28,11 @@ class TestSanity(unittest.TestCase):
             username=self.username,
             password=self.password,
         )
-        transcriber.start()
-
         file_audio_gen = watson_streaming.utilities.FileAudioGen(AUDIO_PATH)
-        file_audio_gen.connect(transcriber)
-        file_audio_gen.start()
+
+        pipeline = [file_audio_gen, transcriber]
+        fluteline.connect(pipeline)
+        fluteline.start(pipeline)
 
         while True:
             result = transcriber.output.get()

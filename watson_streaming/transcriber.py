@@ -70,7 +70,7 @@ class Transcriber(fluteline.Consumer):
             data = json.loads(msg)
             if data.get('state') == 'listening':
                 self._watson_ready.set()
-            self.put(data)
+            self.output.put(data)
 
         def on_open(ws):
             ws.send(json.dumps(self.settings).encode('utf8'))

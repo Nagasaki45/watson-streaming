@@ -32,7 +32,7 @@ class MicAudioGen(fluteline.Producer):
 
     def produce(self):
         chunk, _ = self.stream.read(BUFFER_SIZE)
-        self.put(chunk[:])  # To get the bytes out of the CFFI buffer
+        self.output.put(chunk[:])  # To get the bytes out of the CFFI buffer
 
 
 class FileAudioGen(fluteline.Producer):
@@ -56,7 +56,7 @@ class FileAudioGen(fluteline.Producer):
     def produce(self):
         samples = self.file_.readframes(BUFFER_SIZE)
         if samples:
-            self.put(samples)
+            self.output.put(samples)
         else:
             self.stop()
 
