@@ -6,26 +6,19 @@ import fluteline
 import requests
 import websocket
 
-AUTH_API = 'https://stream.watsonplatform.net/authorization/api/'
-STT_API = 'https://stream.watsonplatform.net/speech-to-text/api/'
-WS_URL = 'wss://stream.watsonplatform.net/speech-to-text/api/v1/recognize'
+AUTH_API = 'https://iam.bluemix.net/identity/token/'
+URL_TEMPLATE = 'wss://{}/speech-to-text/api/v1/recognize?access_token={}'
 
 
-def _parse_credentials(credentials_file):
-    with open(credentials_file) as f:
-        return json.load(f)['speech_to_text'][0]['credentials']
-
-
-def _request_token(username, password):
+def _request_access_token(apikey):
     params = {
-        'url': STT_API,
+        'grant_type': 'urn:ibm:params:oauth:grant-type:apikey',
+        'apikey': apikey,
     }
-    auth = (username, password)
-    url = AUTH_API + '/v1/token'
-    response = requests.get(url, params=params, auth=auth)
+    response = requests.post(AUTH_API, params=params)
     msg = 'Failed to get a token. Check your credentials'
     assert response.status_code == 200, msg
-    return response.text
+    return response.json()['access_token']
 
 
 class Transcriber(fluteline.Consumer):
@@ -36,32 +29,23 @@ class Transcriber(fluteline.Consumer):
     and it will spit out the results from watson.
     '''
 
-    def __init__(self, settings, credentials_file=None,
-                 username=None, password=None):
+    def __init__(self, settings, apikey, hostname='stream.watsonplatform.net'):
         '''
         :param dict settings: IBM Watson settings. Consult the official
             IBM Watson docs for more information.
-        :param string credentials_file: Path to your IBM Watson credentials.
-            Alternatively, provide your username and password.
-        :param string username: IBM Watson username.
-        :param string password: IBM Watson password.
+        :param string apikey: API key for the IBM Watson service.
+        :param string hostname: IBM Watson hostname.
         '''
         super(Transcriber, self).__init__()
 
-        if credentials_file is None:
-            msg = 'Provide either credentials_file or username and password'
-            assert None not in (username, password), msg
-        else:
-            credentials = _parse_credentials(credentials_file)
-            username = credentials['username']
-            password = credentials['password']
+        token = _request_access_token(apikey)
+        self._url = URL_TEMPLATE.format(hostname, token)
 
         settings.update({
             'action': 'start',
             'content-type': 'audio/l16;rate=44100',
         })
         self.settings = settings
-        self.token = _request_token(username, password)
         self._watson_ready = threading.Event()
 
     def enter(self):
@@ -75,11 +59,14 @@ class Transcriber(fluteline.Consumer):
         def on_open(ws):
             ws.send(json.dumps(self.settings).encode('utf8'))
 
+        def on_error(_, error):
+            print('error', error)
+
         self._ws = websocket.WebSocketApp(
-            WS_URL,
-            header={'X-Watson-Authorization-Token': self.token},
+            self._url,
             on_open=on_open,
             on_message=on_message,
+            on_error=on_error,
         )
 
         ws_settings = {'sslopt': {'cert_reqs': ssl.CERT_NONE}}

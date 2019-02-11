@@ -15,18 +15,16 @@ class TestSanity(unittest.TestCase):
 
     def setUp(self):
         if os.path.isfile(CREDENTIALS_PATH):
-            credentials = watson_streaming.transcriber._parse_credentials(CREDENTIALS_PATH)
-            self.username = credentials['username']
-            self.password = credentials['password']
+            config = watson_streaming.utilities.config(CREDENTIALS_PATH)
         else:
-            self.username = os.environ['WATSON_USERNAME']
-            self.password = os.environ['WATSON_PASSWORD']
+            config = os.environ['WATSON_APIKEY'], os.environ['WATSON_HOSTNAME']
+        self.apikey, self.hostname = config
 
     def test_sanity(self):
         transcriber = watson_streaming.Transcriber(
             settings={'interim_results': True},
-            username=self.username,
-            password=self.password,
+            apikey=self.apikey,
+            hostname=self.hostname,
         )
         file_audio_gen = watson_streaming.utilities.FileAudioGen(AUDIO_PATH)
 
