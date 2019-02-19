@@ -12,7 +12,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='watson-streaming',
-    version='0.0.8',
+    version='0.0.9',
     description='Speech to text transcription in real-time using IBM Watson',
     long_description=long_description,
     url='https://github.com/Nagasaki45/watson-streaming',
