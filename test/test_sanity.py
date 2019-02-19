@@ -15,7 +15,7 @@ class TestSanity(unittest.TestCase):
 
     def setUp(self):
         if os.path.isfile(CREDENTIALS_PATH):
-            config = watson_streaming.utilities.config(CREDENTIALS_PATH)
+            config = watson_streaming.transcriber._parse_credentials(CREDENTIALS_PATH)
         else:
             config = os.environ['WATSON_APIKEY'], os.environ['WATSON_HOSTNAME']
         self.apikey, self.hostname = config
@@ -42,4 +42,4 @@ class TestSanity(unittest.TestCase):
         else:
             raise AssertionError("Didn't get expected transcript")
 
-        transcriber.stop()
+        fluteline.stop(pipeline)

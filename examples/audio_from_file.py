@@ -21,14 +21,13 @@ def parse_arguments():
 
 def main():
     args = parse_arguments()
-    apikey, hostname = watson_streaming.utilities.config(args.credentials)
     settings = {
         'interim_results': True,
     }
 
     nodes = [
         watson_streaming.utilities.FileAudioGen(args.audio_file),
-        watson_streaming.Transcriber(settings, apikey, hostname),
+        watson_streaming.Transcriber(settings, args.credentials),
         watson_streaming.utilities.Printer(),
     ]
 

@@ -6,11 +6,6 @@ Convenient `fluteline`_ producers and consumers to use with the main
 import json
 import wave
 
-try:
-    from urllib.parse import urlparse
-except ImportError:  # python 2
-    from urlparse import urlparse
-
 import fluteline
 import sounddevice
 
@@ -74,16 +69,3 @@ class Printer(fluteline.Consumer):
     def consume(self, item):
         if 'results' in item:
             print(item['results'][0]['alternatives'][0]['transcript'])
-
-
-def config(path_to_credentials):
-    '''
-    Reads the credentials.json and returns the API key and hostname, ready for
-    the transcriber.
-
-    :param string path_to_credentials: Path to the ``credentials.json`` file.
-    '''
-    with open(path_to_credentials) as f:
-        credentials = json.load(f)
-    hostname = urlparse(credentials['url']).netloc
-    return credentials['apikey'], hostname

@@ -19,7 +19,6 @@ def parse_arguments():
 
 def main():
     args = parse_arguments()
-    apikey, hostname = watson_streaming.utilities.config(args.credentials)
     settings = {
         'inactivity_timeout': -1,  # Don't kill me after 30 seconds
         'interim_results': True,
@@ -27,7 +26,7 @@ def main():
 
     nodes = [
         watson_streaming.utilities.MicAudioGen(),
-        watson_streaming.Transcriber(settings, apikey, hostname),
+        watson_streaming.Transcriber(settings, args.credentials),
         watson_streaming.utilities.Printer(),
     ]
 

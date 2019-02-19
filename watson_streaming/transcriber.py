@@ -1,6 +1,10 @@
 import json
 import ssl
 import threading
+try:
+    from urllib.parse import urlparse
+except ImportError:  # python 2
+    from urlparse import urlparse
 
 import fluteline
 import requests
@@ -10,7 +14,14 @@ AUTH_API = 'https://iam.bluemix.net/identity/token/'
 URL_TEMPLATE = 'wss://{}/speech-to-text/api/v1/recognize?access_token={}'
 
 
-def _request_access_token(apikey):
+def _parse_credentials(credentials_file):
+    with open(credentials_file) as f:
+        credentials = json.load(f)
+    hostname = urlparse(credentials['url']).netloc
+    return credentials['apikey'], hostname
+
+
+def _request_token(apikey):
     params = {
         'grant_type': 'urn:ibm:params:oauth:grant-type:apikey',
         'apikey': apikey,
@@ -29,16 +40,25 @@ class Transcriber(fluteline.Consumer):
     and it will spit out the results from watson.
     '''
 
-    def __init__(self, settings, apikey, hostname='stream.watsonplatform.net'):
+    def __init__(self, settings, credentials_file=None,
+                 apikey=None, hostname=None):
         '''
         :param dict settings: IBM Watson settings. Consult the official
             IBM Watson docs for more information.
+        :param string credentials_file: Path to your IBM Watson credentials.
+            Alternatively, provide an apikey and hostname.
         :param string apikey: API key for the IBM Watson service.
         :param string hostname: IBM Watson hostname.
         '''
         super(Transcriber, self).__init__()
 
-        token = _request_access_token(apikey)
+        if credentials_file is None:
+            msg = 'Provide either credentials_file or apikey and hostname'
+            assert None not in (apikey, hostname), msg
+        else:
+            apikey, hostname = _parse_credentials(credentials_file)
+
+        token = _request_token(apikey)
         self._url = URL_TEMPLATE.format(hostname, token)
 
         settings.update({
