@@ -4,7 +4,9 @@ IBM Watson.
 '''
 
 import argparse
+import contextlib
 import time
+import wave
 
 import fluteline
 
@@ -34,12 +36,12 @@ def main():
     fluteline.connect(nodes)
     fluteline.start(nodes)
 
-    # It's impossible to know when Watson finished sending the entire
-    # transcript. So let's wait forever or exit manually.
     try:
-        while True:
-            time.sleep(10)
-    except KeyboardInterrupt:
+        with contextlib.closing(wave.open(args.audio_file)) as f:
+            wav_length = f.getnframes() / f.getnchannels() / f.getframerate()
+        # Sleep till the end of the file + some seconds slack
+        time.sleep(wav_length + 5)
+    finally:
         fluteline.stop(nodes)
 
 
