@@ -61,10 +61,8 @@ class Transcriber(fluteline.Consumer):
         token = _request_token(apikey)
         self._url = URL_TEMPLATE.format(hostname, token)
 
-        settings.update({
-            'action': 'start',
-            'content-type': 'audio/l16;rate=44100',
-        })
+        settings.setdefault('action', 'start')
+        settings.setdefault('content-type', 'audio/l16;rate=44100')
         self.settings = settings
         self._watson_ready = threading.Event()
 
