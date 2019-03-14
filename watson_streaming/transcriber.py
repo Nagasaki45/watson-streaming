@@ -64,38 +64,28 @@ class Transcriber(fluteline.Consumer):
         settings.setdefault('action', 'start')
         settings.setdefault('content-type', 'audio/l16;rate=44100')
         self.settings = settings
-        self._watson_ready = threading.Event()
+
+        self._ws = websocket.WebSocket()
 
     def enter(self):
 
-        def on_message(_, msg):
-            data = json.loads(msg)
-            if data.get('state') == 'listening':
-                self._watson_ready.set()
-            self.output.put(data)
+        def receive_messages():
+            while True:
+                msg = self._ws.recv()
+                data = json.loads(msg)
+                self.output.put(data)
 
-        def on_open(ws):
-            ws.send(json.dumps(self.settings).encode('utf8'))
+        self._ws.connect(self._url)
+        self._ws.send(json.dumps(self.settings).encode('utf8'))
+        result = json.loads(self._ws.recv())
+        assert result['state'] == 'listening'
 
-        def on_error(_, error):
-            print('error', error)
-
-        self._ws = websocket.WebSocketApp(
-            self._url,
-            on_open=on_open,
-            on_message=on_message,
-            on_error=on_error,
-        )
-
-        ws_settings = {'sslopt': {'cert_reqs': ssl.CERT_NONE}}
-        t = threading.Thread(target=self._ws.run_forever, kwargs=ws_settings)
+        t = threading.Thread(target=receive_messages)
         t.daemon = True  # Not passed to the constructor to support python 2
         t.start()
 
     def exit(self):
         self._ws.close()
-        self._watson_ready.clear()
 
     def consume(self, chunk):
-        self._watson_ready.wait()
         self._ws.send(chunk, websocket.ABNF.OPCODE_BINARY)
