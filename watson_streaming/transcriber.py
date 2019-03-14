@@ -72,6 +72,8 @@ class Transcriber(fluteline.Consumer):
         def receive_messages():
             while True:
                 msg = self._ws.recv()
+                if not msg:
+                    break
                 data = json.loads(msg)
                 self.output.put(data)
 
