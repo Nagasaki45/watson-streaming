@@ -65,7 +65,7 @@ class Transcriber(fluteline.Consumer):
         settings.setdefault('content-type', 'audio/l16;rate=44100')
         self.settings = settings
 
-        self._ws = websocket.WebSocket()
+        self._ws = websocket.WebSocket(enable_multithread=True)
 
     def enter(self):
 
