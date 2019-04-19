@@ -2,6 +2,7 @@
 credentials.json
 
 # general things to ignore
+env/
 build/
 dist/
 *.egg-info/
