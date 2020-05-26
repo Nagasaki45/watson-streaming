@@ -14,6 +14,7 @@ import watson_streaming.utilities
 def parse_arguments():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('credentials', help='path to credentials.json')
+    parser.add_argument('parameters', help='path to parameters.json')
     return parser.parse_args()
 
 
@@ -26,7 +27,7 @@ def main():
 
     nodes = [
         watson_streaming.utilities.MicAudioGen(),
-        watson_streaming.Transcriber(settings, args.credentials),
+        watson_streaming_.Transcriber(settings, args.credentials, None, None, args.parameters),
         watson_streaming.utilities.Printer(),
     ]
 
