@@ -3,7 +3,7 @@ watson-streaming
 
 Real-time speech-to-text transcription using IBM Watson.
 
-###use examples/
+### use examples/
 
 * Need
 
