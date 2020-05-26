@@ -8,9 +8,11 @@ Real-time speech-to-text transcription using IBM Watson.
 * Need
 
 1. make credentials.json (apikey, url)  
+
 * Option
 
 1. make parameters.json  
+
 > {  
 "model":"ko-KR_BroadbandModel"  
 }  
