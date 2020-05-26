@@ -12,7 +12,8 @@ Real-time speech-to-text transcription using IBM Watson.
 * Option
 
 1. make parameters.json  
-
+  
+  
 > {  
 "model":"ko-KR_BroadbandModel"  
 }  
