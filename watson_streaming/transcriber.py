@@ -49,7 +49,7 @@ class Transcriber(fluteline.Consumer):
     '''
 
     def __init__(self, settings, credentials_file=None,
-                 apikey=None, hostname=None):
+                 apikey=None, hostname=None, parameters_file=None):
         '''
         :param dict settings: IBM Watson settings. Consult the official
             IBM Watson docs for more information.
