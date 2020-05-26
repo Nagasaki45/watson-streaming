@@ -12,7 +12,7 @@ use examples/
 1. make parameters.json  
 > {  
 "model":"ko-KR_BroadbandModel"  
-}
+}  
 
 Links
 -----
