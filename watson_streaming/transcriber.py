@@ -21,6 +21,14 @@ def _parse_credentials(credentials_file):
     return credentials['apikey'], hostname
 
 
+def _parse_parameters(parameters_file):
+    parameters_result = ''
+    with open(parameters_file) as f:
+        parameters = json.load(f)
+    for key in parameters.keys():
+        parameters_result += '&' + key + '=' + parameters[key]
+    return parameters_result
+
 def _request_token(apikey):
     params = {
         'grant_type': 'urn:ibm:params:oauth:grant-type:apikey',
@@ -53,13 +61,18 @@ class Transcriber(fluteline.Consumer):
         super(Transcriber, self).__init__()
 
         if credentials_file is None:
-            msg = 'Provide either credentials_file or apikey and hostname'
+            msg = 'Provide either credentials_file (json format with apikey and url) or apikey and hostname'
             assert None not in (apikey, hostname), msg
         else:
             apikey, hostname = _parse_credentials(credentials_file)
 
         token = _request_token(apikey)
         self._url = URL_TEMPLATE.format(hostname, token)
+        
+        if parameters_file is None:
+            pass
+        else:
+            self._url += _parse_parameters(parameters_file)
 
         settings.setdefault('action', 'start')
         settings.setdefault('content-type', 'audio/l16;rate=44100')
