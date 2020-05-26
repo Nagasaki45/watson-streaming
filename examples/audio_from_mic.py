@@ -27,7 +27,7 @@ def main():
 
     nodes = [
         watson_streaming.utilities.MicAudioGen(),
-        watson_streaming_.Transcriber(settings, args.credentials, None, None, args.parameters),
+        watson_streaming.Transcriber(settings, args.credentials, None, None, args.parameters),
         watson_streaming.utilities.Printer(),
     ]
 
