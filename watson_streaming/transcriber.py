@@ -3,15 +3,27 @@ import ssl
 import threading
 try:
     from urllib.parse import urlparse
+    from urllib.parse import urlencode
 except ImportError:  # python 2
     from urlparse import urlparse
+    from urllib import urlencode
 
 import fluteline
 import requests
 import websocket
 
 AUTH_API = 'https://iam.bluemix.net/identity/token/'
-URL_TEMPLATE = 'wss://{}/speech-to-text/api/v1/recognize?access_token={}'
+URL_TEMPLATE = 'wss://{}/speech-to-text/api/v1/recognize'
+URL_ONLY_PARAMS = [
+    'access_token',
+    'watson-token',
+    'model',
+    'language_customization_id',
+    'acoustic_customization_id',
+    'base_model_version',
+    'x-watson-learning-opt-out',
+    'x-watson-metadata',
+]
 
 
 def _parse_credentials(credentials_file):
@@ -58,8 +70,13 @@ class Transcriber(fluteline.Consumer):
         else:
             apikey, hostname = _parse_credentials(credentials_file)
 
-        token = _request_token(apikey)
-        self._url = URL_TEMPLATE.format(hostname, token)
+        params = {
+            'access_token': _request_token(apikey),
+        }
+        for param in URL_ONLY_PARAMS:
+            if param in settings:
+                params[param] = settings.pop(param)
+        self._url = URL_TEMPLATE.format(hostname) + "?" + urlencode(params)
 
         settings.setdefault('action', 'start')
         settings.setdefault('content-type', 'audio/l16;rate=44100')
