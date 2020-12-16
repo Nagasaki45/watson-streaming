@@ -10,6 +10,6 @@ Links
 * Source code: https://github.com/Nagasaki45/watson-streaming
 * PyPI releases: https://pypi.org/project/watson-streaming
 * License: `MIT`_
-* Test status: https://travis-ci.org/Nagasaki45/watson-streaming
+* Test status: https://travis-ci.com/Nagasaki45/watson-streaming
 
 .. _MIT: https://github.com/Nagasaki45/watson-streaming/blob/master/LICENSE
